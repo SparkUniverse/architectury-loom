@@ -407,7 +407,7 @@ public abstract class GenerateDLIConfigTask extends AbstractLoomTask {
 					project.file("src/generated/resources").getAbsolutePath(),
 					extension.getForge().getMixinConfigs().get(),
 					extension.getForge().getUseCustomMixin().get(),
-					extension.getMappingConfiguration().srgToNamedSrg.toAbsolutePath().toString()
+					extension.disableObfuscation() ? "" : extension.getMappingConfiguration().srgToNamedSrg.toAbsolutePath().toString()
 			);
 		}
 	}

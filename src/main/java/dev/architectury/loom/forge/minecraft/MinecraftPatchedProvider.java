@@ -84,7 +84,6 @@ import net.fabricmc.loom.LoomGradleExtension;
 import net.fabricmc.loom.build.IntermediaryNamespaces;
 import net.fabricmc.loom.configuration.providers.mappings.TinyMappingsService;
 import net.fabricmc.loom.configuration.providers.minecraft.MinecraftProvider;
-import net.fabricmc.loom.util.Check;
 import net.fabricmc.loom.util.Constants;
 import net.fabricmc.loom.util.FileSystemUtil;
 import net.fabricmc.loom.util.LoomVersions;
@@ -256,7 +255,7 @@ public class MinecraftPatchedProvider {
 			McpExecutorBuilder builder = createMcpExecutor(tempFiles.directory("loom-mcp"));
 
 			if (getExtension().disableObfuscation()) {
-				builder.enqueue("preProcessJar");
+				builder.enqueue(getExtension().isNeoForge() ? "preProcessJar" : "merge");
 			} else {
 				builder.enqueue("rename");
 			}
@@ -704,15 +703,18 @@ public class MinecraftPatchedProvider {
 		try (FileSystemUtil.Delegate delegate = FileSystemUtil.getJarFileSystem(target, false)) {
 			Path manifestPath = delegate.get().getPath("META-INF/MANIFEST.MF");
 
-			Check.require(Files.exists(manifestPath), "META-INF/MANIFEST.MF does not exist in patched srg jar!");
 			Manifest manifest = new Manifest();
 
 			if (Files.exists(manifestPath)) {
 				try (InputStream stream = Files.newInputStream(manifestPath)) {
 					manifest.read(stream);
-					manifest.getMainAttributes().putValue(LOOM_PATCH_VERSION_KEY, CURRENT_LOOM_PATCH_VERSION);
 				}
+			} else {
+				Files.createDirectories(manifestPath.getParent());
+				manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 			}
+
+			manifest.getMainAttributes().putValue(LOOM_PATCH_VERSION_KEY, CURRENT_LOOM_PATCH_VERSION);
 
 			try (OutputStream stream = Files.newOutputStream(manifestPath, StandardOpenOption.CREATE)) {
 				manifest.write(stream);
