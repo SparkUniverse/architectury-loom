@@ -66,7 +66,6 @@ import net.fabricmc.loom.util.Checksum;
 import net.fabricmc.loom.util.DeletingFileVisitor;
 import net.fabricmc.loom.util.ModPlatform;
 import net.fabricmc.loom.util.ZipReprocessorUtil;
-import net.fabricmc.loom.util.ZipUtils;
 import net.fabricmc.loom.util.fmj.FabricModJsonFactory;
 
 public abstract class NestableJarGenerationTask extends AbstractLoomTask {
@@ -247,7 +246,7 @@ public abstract class NestableJarGenerationTask extends AbstractLoomTask {
 
 		if (nestingMetadata != null) {
 			try {
-				ZipUtils.add(output.toPath(), NESTING_METADATA_PATH, nestingMetadata);
+				ZipReprocessorUtil.appendZipEntry(output.toPath(), NESTING_METADATA_PATH, nestingMetadata.getBytes(StandardCharsets.UTF_8));
 			} catch (IOException e) {
 				throw new UncheckedIOException("Failed to add nesting metadata to " + input, e);
 			}

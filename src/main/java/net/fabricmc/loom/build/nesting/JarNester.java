@@ -68,7 +68,7 @@ public class JarNester {
 			}).collect(Collectors.toList()));
 
 			if (platform.isForgeLike()) {
-				handleForgeJarJar(jars, modJar, logger);
+				handleForgeJarJar(sortedJars, modJar, logger);
 				return;
 			}
 
